@@ -190,6 +190,7 @@ public class UdpPlugin extends Plugin {
         try {
             for (UdpSocket socket : sockets.values()) {
                 addSelectorMessage(socket, SelectorMessageType.SO_CLOSE, null);
+                sockets.remove(socket.getSocketId());
             }
             call.success();
         } catch (Exception e) {
@@ -204,6 +205,7 @@ public class UdpPlugin extends Plugin {
             int socketId = call.getInt("socketId");
             UdpSocket socket = obtainSocket(socketId);
             addSelectorMessage(socket, SelectorMessageType.SO_CLOSE, call);
+            sockets.remove(socket.getSocketId());
         } catch (Exception e) {
             call.error(e.getMessage());
         }

@@ -3,24 +3,24 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
     "lib": [
       "dom",
-      "es2017"
+      "es2020"
     ],
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "module": "commonjs",
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "dist/esm",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "outDir": "build",
     "sourceMap": true,
-    "target": "ES2017",
-    "strict": true
+    "strict": true,
+    "target": "ES2017"
   },
-  "files": [
-    "src/index.ts"
+  "include": [
+    "src/**/*"
   ]
 }

@@ -1,17 +1,16 @@
-import { WebPlugin } from '@capacitor/core';
+import { registerWebPlugin, WebPlugin } from '@capacitor/core';
 
-export class UdpPluginWeb extends WebPlugin  {
+export class UdpPluginWeb extends WebPlugin {
   constructor() {
     super({
       name: 'UdpPlugin',
-      platforms: ['web']
+      platforms: ['web'],
     });
   }
-
 }
 
 const UdpPlugin = new UdpPluginWeb();
 
-export { UdpPlugin };
-import { registerWebPlugin } from '@capacitor/core';
 registerWebPlugin(UdpPlugin);
+
+export { UdpPlugin };

@@ -5,20 +5,31 @@
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "scripts": {
-    "build": "npm run clean && tsc",
-    "clean": "rm -rf ./dist",
+    "build": "npm run clean && tsc && rollup -c rollup.config.js && npm run build-electron",
+    "build-electron": "rimraf ./electron/build && rimraf ./electron/dist && tsc --project ./electron/tsconfig.json && rollup -c electron/rollup.config.js && rimraf ./electron/build",
+    "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build"
   },
   "author": "Zhongkai Chen",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/core": "^1.5.1"
+    "@capacitor/core": "^6.1.0",
+    "rimraf": "^5.0.7"
   },
   "devDependencies": {
-    "@capacitor/android": "^1.5.1",
-    "@capacitor/ios": "^1.5.1",
-    "typescript": "^3.8.3"
+    "@ionic/eslint-config": "^0.3.0",
+    "@ionic/prettier-config": "~1.0.1",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@types/electron": "^1.6.10",
+    "@types/node": "^16.6.1",
+    "eslint": "^7.11.0",
+    "prettier": "~2.3.0",
+    "prettier-plugin-java": "~1.0.2",
+    "rollup": "^2.29.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "swiftlint": "^1.0.1",
+    "typescript": "~4.1.5"
   },
   "files": [
     "dist/",
@@ -41,6 +52,9 @@
     },
     "android": {
       "src": "android"
+    },
+    "electron": {
+      "src": "electron"
     }
   },
   "repository": {
