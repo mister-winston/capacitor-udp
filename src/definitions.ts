@@ -50,7 +50,7 @@ export interface IUdpPlugin {
 
   getJoinedGroups(options: { socketId: number }): Promise<{ groups: string[] }>;
 
-  addListener(events: 'receive', functions: (params: { socketId: number; buffer: string }) => void): PluginListenerHandle;
+  addListener(events: 'receive', functions: (params: { socketId: number; buffer: string }) => void): Promise<PluginListenerHandle>;
 
-  addListener(events: 'receiveError', functions: (params: string) => void): PluginListenerHandle;
+  addListener(events: 'receiveError', functions: (params: string) => void): Promise<PluginListenerHandle>;
 }
