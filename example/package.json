@@ -1,0 +1,20 @@
+{
+  "name": "capacitor-example-app",
+  "version": "1.0.0",
+  "scripts": {
+    "build-web": "vite build",
+    "build-plugin": "cd ../ && npm run build",
+    "build": "npm run build-web && npm run build-plugin",
+    "open-android": "npm run build && cap sync android && cap open android",
+    "open-desktop": "npm run build && cap sync @capacitor-community/electron && cap open @capacitor-community/electron"
+  },
+  "dependencies": {
+    "@capacitor-community/electron": "^5.0.1",
+    "@capacitor/core": "latest",
+    "capacitor-udp": "file:.."
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest",
+    "vite": "^5.3.5"
+  }
+}
