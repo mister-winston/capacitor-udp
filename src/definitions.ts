@@ -1,11 +1,5 @@
 import { PluginListenerHandle } from '@capacitor/core';
 
-declare module '@capacitor/core' {
-  interface PluginRegistry {
-    UdpPlugin: IUdpPlugin;
-  }
-}
-
 export type Success = Record<string, unknown>;
 export type Properties = { name: string; bufferSize: number };
 export type SocketInfo = {
