@@ -13,5 +13,6 @@ if (!UdpSocket.isAvailable()) {
 		socket.close().catch(console.error);
 	});
 
+	await socket.bind('0.0.0.0', 0);
 	await socket.send('127.0.0.1', 1212, new TextEncoder().encode('Hello'));
 })().catch(console.error);
