@@ -5,7 +5,7 @@ Supports both IPv6 and IPv4, multicast and broadcast!
 
 ## Examples
 
-An example project can be found in the 'examples/' folder.
+An example project can be found in the 'example/' folder.
 
 ----------------
 

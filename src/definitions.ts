@@ -46,5 +46,13 @@ export interface IUdpPlugin {
 
   addListener(events: 'receive', functions: (params: { socketId: number; buffer: string }) => void): Promise<PluginListenerHandle>;
 
-  addListener(events: 'receiveError', functions: (params: string) => void): Promise<PluginListenerHandle>;
+  addListener(
+    events: 'receiveError',
+    functions: (params: {
+      socketId: number;
+      message: string;
+      /** Only available on Android */
+      resultCode?: number;
+    }) => void
+  ): Promise<PluginListenerHandle>;
 }

@@ -78,6 +78,8 @@ class UDPSocket {
     while (sent < buffer.length) {
       sent += await innerSend(buffer.subarray(sent));
     }
+
+    return sent;
   }
 
   close() {
@@ -151,7 +153,7 @@ class UDPSocket {
 
 const handleEvent: Callback = function (this: { socketId: number; plugin: UdpPlugin }, error, message) {
   if (error) {
-    this.plugin.emit('receiveError', error.toString());
+    this.plugin.emit('receiveError', { socketId: this.socketId, message: error.message || error.toString() });
   } else if (message) {
     this.plugin.emit('receive', { socketId: this.socketId, buffer: message.data.toString('base64') });
   }
@@ -198,9 +200,9 @@ class UdpPlugin extends EventEmitter implements Omit<IUdpPlugin, 'addListener'> 
   async send(options: { socketId: number; address: string; port: number; buffer: string }) {
     const socket = this.getSocketById(options.socketId);
 
-    await socket.send(options.address, options.port, Buffer.from(options.buffer, 'base64'));
+    const bytesSent = await socket.send(options.address, options.port, Buffer.from(options.buffer, 'base64'));
 
-    return {};
+    return { bytesSent };
   }
 
   async closeAllSockets() {

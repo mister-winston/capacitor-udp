@@ -17,11 +17,12 @@ declare global {
   }
 }
 
-export const Udp = window.CapacitorCustomPlatform?.plugins?.UdpPlugin ?? UdpPlugin;
+const DesktopPlugin = window.CapacitorCustomPlatform?.plugins?.UdpPlugin;
+export const Udp = DesktopPlugin ?? UdpPlugin;
 
 type Events = {
   receive: CustomEvent<ArrayBuffer>;
-  error: CustomEvent<string>;
+  error: CustomEvent<{ message: string; resultCode?: number }>;
 };
 
 interface TypedEventListenerObject<E extends Event> extends EventListenerObject {
@@ -161,11 +162,12 @@ class UdpSocket extends TypedEventTarget {
         }
       }),
 
-      // TODO: Send the socket ID with this error
-      Udp.addListener('receiveError', (message) => {
-        const event = new CustomEvent<Events['error']['detail']>('error', { detail: message });
+      Udp.addListener('receiveError', ({ socketId, message, resultCode }) => {
+        if (socketId === this.socket.socketId) {
+          const event = new CustomEvent<Events['error']['detail']>('error', { detail: { message, resultCode } });
 
-        this.dispatchEvent(event);
+          this.dispatchEvent(event);
+        }
       }),
     ];
 
@@ -179,7 +181,7 @@ class UdpSocket extends TypedEventTarget {
 
   /** Determine if the platform supports UDP */
   static isAvailable() {
-    return Capacitor.getPlatform() !== 'web';
+    return Capacitor.isPluginAvailable('UdpPlugin') || !!window.CapacitorCustomPlatform?.plugins?.UdpPlugin;
   }
 
   /** Convert an ArrayBuffer to a base64 string */

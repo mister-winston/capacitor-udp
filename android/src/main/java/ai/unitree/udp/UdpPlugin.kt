@@ -299,10 +299,11 @@ class UdpPlugin : Plugin() {
     }
 
 
-    private fun sendReceiveErrorEvent(code: Int, message: String?) {
+    private fun sendReceiveErrorEvent(socketId: Int, code: Int, message: String?) {
         val error = JSObject()
         try {
-            error.put("message", message)
+            error.put("socketId", socketId)
+            error.put("message", message ?: "")
             error.put("resultCode", code)
             notifyListeners("receiveError", error, false)
         } catch (e: Exception) {
@@ -427,7 +428,7 @@ class UdpPlugin : Plugin() {
                 throw RuntimeException(e)
             }
 
-            // process possible messages that send during openning the selector
+            // process possible messages that send during opening the selector
             // before select.
             processPendingMessages()
 
@@ -570,7 +571,7 @@ class UdpPlugin : Plugin() {
             multicastSocket!!.bind(InetSocketAddress(channel.socket().localPort))
 
             if (!paused) {
-                multicastReadThread = MulticastReadThread(multicastSocket)
+                multicastReadThread = MulticastReadThread(socketId, multicastSocket)
                 multicastReadThread!!.start()
             }
         }
@@ -599,7 +600,7 @@ class UdpPlugin : Plugin() {
             }
 
             if (multicastSocket != null && multicastReadThread == null) {
-                multicastReadThread = MulticastReadThread(multicastSocket)
+                multicastReadThread = MulticastReadThread(socketId, multicastSocket)
                 multicastReadThread!!.start()
             }
         }
@@ -736,7 +737,7 @@ class UdpPlugin : Plugin() {
         // This method can be only called by selector thread.
         fun read() {
             if (paused) {
-                // Remove read interests to avoid seletor wakeup when readable.
+                // Remove read interests to avoid selector wakeup when readable.
                 removeInterestSet(SelectionKey.OP_READ)
                 return
             }
@@ -747,7 +748,6 @@ class UdpPlugin : Plugin() {
             try {
                 val address = channel.receive(recvBuffer) as InetSocketAddress
 
-
                 recvBuffer.flip()
                 val recvBytes = ByteArray(recvBuffer.limit())
                 recvBuffer[recvBytes]
@@ -756,7 +756,7 @@ class UdpPlugin : Plugin() {
                 }
                 sendReceiveEvent(recvBytes, socketId, address.address.hostAddress, address.port)
             } catch (e: IOException) {
-                sendReceiveErrorEvent(-2, e.message)
+                sendReceiveErrorEvent(socketId, -2, e.message)
             }
         }
 
@@ -807,7 +807,10 @@ class UdpPlugin : Plugin() {
             return InetAddress.getLoopbackAddress()
         }
 
-        private inner class MulticastReadThread(private val socket: MulticastSocket?) : Thread() {
+        private inner class MulticastReadThread(
+            private val socketId: Int,
+            private val socket: MulticastSocket?
+        ) : Thread() {
             override fun run() {
                 while (!currentThread().isInterrupted) {
                     if (paused) {
@@ -815,6 +818,7 @@ class UdpPlugin : Plugin() {
                         multicastReadThread = null
                         return
                     }
+
                     try {
                         val out = ByteArray(socket!!.receiveBufferSize)
                         val packet = DatagramPacket(out, out.size)
@@ -838,7 +842,7 @@ class UdpPlugin : Plugin() {
                             sendMulticastPacket(packet)
                         }
                     } catch (e: IOException) {
-                        sendReceiveErrorEvent(-2, e.message)
+                        sendReceiveErrorEvent(socketId, -2, e.message)
                     }
                 }
             }
