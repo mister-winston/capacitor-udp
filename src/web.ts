@@ -19,7 +19,7 @@ export class UdpPluginWeb extends WebPlugin implements IUdpPlugin {
     throw this.unimplemented('Not implemented on web.');
   }
 
-  send(): Promise<Success> {
+  send(): Promise<{ bytesSent: number }> {
     throw this.unimplemented('Not implemented on web.');
   }
 

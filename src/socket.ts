@@ -102,13 +102,59 @@ class UdpSocket extends TypedEventTarget {
   }
 
   /** Send data to a UDP server */
-  send(address: string, port: number, buffer: string | ArrayBuffer): Promise<Success> {
-    return Udp.send({
-      socketId: this.socket.socketId,
-      address,
-      port,
-      buffer: typeof buffer === 'string' ? buffer : UdpSocket.bufferToString(buffer),
-    });
+  async send(
+    address: string,
+    port: number,
+    buffer: string | ArrayBuffer,
+    {
+      disableAutoFullSend = false,
+      maxLoopCount = null,
+    }: {
+      /**
+       * By default the socket attempts to write the entire buffer (even if the OS only sent out a subset) by calling `send` in a loop.
+       *  Disabling this may cause partial data to be sent */
+      disableAutoFullSend?: boolean;
+      /**
+       * Max amount of loops for trying to send the full buffer
+       *
+       * `null` means 2x the buffer byte size
+       */
+      maxLoopCount?: number | null;
+    } = {}
+  ): Promise<{ bytesSent: number }> {
+    const send = (encodedBuffer: string) =>
+      Udp.send({
+        socketId: this.socket.socketId,
+        buffer: encodedBuffer,
+        address,
+        port,
+      });
+
+    const encodedBuffer = typeof buffer === 'string' ? buffer : UdpSocket.bufferToString(buffer);
+
+    if (disableAutoFullSend) {
+      return send(encodedBuffer);
+    }
+
+    const decodedBuffer = typeof buffer === 'string' ? UdpSocket.stringToBuffer(buffer) : buffer;
+    const max = typeof maxLoopCount === 'number' ? maxLoopCount : 2 * decodedBuffer.byteLength;
+
+    let bytesSent = 0;
+    let loopIndex = 0;
+
+    while (bytesSent < decodedBuffer.byteLength) {
+      if (loopIndex > max) {
+        throw new Error(`Send loop maximum exceeded (${loopIndex})`);
+      }
+
+      const slice = decodedBuffer.slice(bytesSent);
+      const result = await send(UdpSocket.bufferToString(slice));
+
+      bytesSent += result.bytesSent;
+      loopIndex += 1;
+    }
+
+    return { bytesSent };
   }
 
   /** Close the socket. After this has been called the socket can no longer be used */

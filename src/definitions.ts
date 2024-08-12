@@ -20,7 +20,7 @@ export interface IUdpPlugin {
 
   bind(options: { socketId: number; address: string; port: number }): Promise<Success>;
 
-  send(options: { socketId: number; address: string; port: number; buffer: string }): Promise<Success>;
+  send(options: { socketId: number; address: string; port: number; buffer: string }): Promise<{ bytesSent: number }>;
 
   closeAllSockets(): Promise<Success>;
 

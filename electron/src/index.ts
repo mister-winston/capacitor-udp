@@ -63,23 +63,15 @@ class UDPSocket {
   }
 
   async send(address: string, port: number, buffer: Buffer) {
-    const innerSend = (data: Buffer) =>
-      new Promise<number>((resolve, reject) => {
-        this.socket.send(data, port, address, (err, bytes) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(bytes);
-          }
-        });
+    return new Promise<number>((resolve, reject) => {
+      this.socket.send(buffer, port, address, (err, bytes) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(bytes);
+        }
       });
-
-    let sent = 0;
-    while (sent < buffer.length) {
-      sent += await innerSend(buffer.subarray(sent));
-    }
-
-    return sent;
+    });
   }
 
   close() {
