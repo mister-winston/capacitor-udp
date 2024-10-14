@@ -366,7 +366,7 @@ public class UdpPlugin: CAPPlugin {
         }
         
         func udpSocketDidClose(_ sock: GCDAsyncUdpSocket, withError error: Error?) {
-            plugin?.notifyListeners("receiveError", data: ["socketId":self.socketId ,"error":"socket closed"], retainUntilConsumed: false)
+            plugin?.notifyListeners("receiveError", data: ["socketId":self.socketId ,"message":"socket closed"], retainUntilConsumed: false)
         }
         
       func getIPv6Address() -> String? {
