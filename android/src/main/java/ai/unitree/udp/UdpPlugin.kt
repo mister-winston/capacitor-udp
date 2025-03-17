@@ -93,7 +93,7 @@ class UdpPlugin : Plugin() {
                 ret.put("ipv6", ipv6)
             }
 
-            call.success(ret)
+            call.resolve(ret)
         } catch (e: Exception) {
             call.reject("create error", e)
         }
@@ -113,9 +113,9 @@ class UdpPlugin : Plugin() {
             val properties = call.getObject("properties")
             val socket = obtainSocket(socketId)
             socket.setProperties(properties)
-            call.success()
+            call.resolve()
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -128,12 +128,12 @@ class UdpPlugin : Plugin() {
             socket.setPaused(paused)
             if (paused) {
                 // Read interest will be removed when socket is readable on selector thread.
-                call.success()
+                call.resolve()
             } else {
                 addSelectorMessage(socket, SelectorMessageType.SO_ADD_READ_INTEREST, call)
             }
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -147,7 +147,7 @@ class UdpPlugin : Plugin() {
             socket.bind(address, port)
             addSelectorMessage(socket, SelectorMessageType.SO_BIND, call)
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -164,7 +164,7 @@ class UdpPlugin : Plugin() {
             socket.addSendPacket(address, port, data, call)
             addSelectorMessage(socket, SelectorMessageType.SO_ADD_WRITE_INTEREST, null)
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -175,9 +175,9 @@ class UdpPlugin : Plugin() {
                 addSelectorMessage(socket, SelectorMessageType.SO_CLOSE, null)
                 sockets.remove(socket.socketId)
             }
-            call.success()
+            call.resolve()
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -189,7 +189,7 @@ class UdpPlugin : Plugin() {
             addSelectorMessage(socket, SelectorMessageType.SO_CLOSE, call)
             sockets.remove(socket.socketId)
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -198,9 +198,9 @@ class UdpPlugin : Plugin() {
         try {
             val socketId = call.getInt("socketId")!!
             val socket = obtainSocket(socketId)
-            call.success(socket.info)
+            call.resolve(socket.info)
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -213,9 +213,9 @@ class UdpPlugin : Plugin() {
             }
             val ret = JSObject()
             ret.put("sockets", results)
-            call.success(ret)
+            call.resolve(ret)
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -226,9 +226,9 @@ class UdpPlugin : Plugin() {
             val address = call.getString("address")
             val socket = obtainSocket(socketId)
             socket.joinGroup(address)
-            call.success()
+            call.resolve()
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -239,9 +239,9 @@ class UdpPlugin : Plugin() {
             val address = call.getString("address")
             val socket = obtainSocket(socketId)
             socket.leaveGroup(address)
-            call.success()
+            call.resolve()
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -252,9 +252,9 @@ class UdpPlugin : Plugin() {
             val ttl = call.getInt("ttl")!!
             val socket = obtainSocket(socketId)
             socket.setMulticastTimeToLive(ttl)
-            call.success()
+            call.resolve()
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -265,9 +265,9 @@ class UdpPlugin : Plugin() {
             val enabled = call.getBoolean("enabled")!!
             val socket = obtainSocket(socketId)
             socket.setBroadcast(enabled)
-            call.success()
+            call.resolve()
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -279,7 +279,7 @@ class UdpPlugin : Plugin() {
             val socket = obtainSocket(socketId)
             socket.setMulticastLoopbackMode(enabled, call)
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -292,9 +292,9 @@ class UdpPlugin : Plugin() {
             val results: JSArray = JSArray(socket.joinedGroups)
             val ret = JSObject()
             ret.put("groups", results)
-            call.success(ret)
+            call.resolve(ret)
         } catch (e: Exception) {
-            call.error(e.message)
+            call.reject(e.message)
         }
     }
 
@@ -411,11 +411,11 @@ class UdpPlugin : Plugin() {
 
                         SelectorMessageType.T_STOP -> running = false
                     }
-                    if (msg.call != null) msg.call!!.success()
+                    if (msg.call != null) msg.call!!.resolve()
                 } catch (_: InterruptedException) {
                 } catch (e: IOException) {
                     if (msg!!.call != null) {
-                        msg.call!!.error(e.message)
+                        msg.call!!.reject(e.message)
                     }
                 }
             }
@@ -617,7 +617,7 @@ class UdpPlugin : Plugin() {
             try {
                 sendPackets.put(sendPacket)
             } catch (e: Exception) {
-                call!!.error(e.message)
+                call!!.reject(e.message)
             }
         }
 
@@ -644,10 +644,10 @@ class UdpPlugin : Plugin() {
                 val ret = JSObject()
                 val bytesSent = channel.send(sendPacket!!.data, sendPacket.address)
                 ret.put("bytesSent", bytesSent)
-                if (sendPacket.call != null) sendPacket.call!!.success(ret)
+                if (sendPacket.call != null) sendPacket.call!!.resolve(ret)
             } catch (_: InterruptedException) {
             } catch (e: IOException) {
-                if (sendPacket!!.call != null) sendPacket.call!!.error(e.message)
+                if (sendPacket!!.call != null) sendPacket.call!!.reject(e.message)
             }
         }
 
@@ -723,7 +723,7 @@ class UdpPlugin : Plugin() {
             multicastLoopback = enabled
             val ret = JSObject()
             ret.put("enabled", !multicastSocket!!.loopbackMode)
-            call.success(ret)
+            call.resolve(ret)
         }
 
         @Throws(IOException::class)
