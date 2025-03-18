@@ -29,6 +29,6 @@ This package is not published to NPM and does not come with the built files in G
 
 ```bash
 $ git clone https://github.com/mister-winston/capacitor-udp.git plugins/capacitor-udp
-$ cd plugins/capacitor-udp && npm install && npm run build
-$ npm i plugins/capacitor-udp
+$ cd plugins/capacitor-udp && pnpm install && pnpm run build
+$ pnpm i plugins/capacitor-udp
 ```

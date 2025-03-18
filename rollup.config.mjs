@@ -1,6 +1,3 @@
-import nodeResolve from 'rollup-plugin-node-resolve';
-import terser from '@rollup/plugin-terser';
-
 export default {
   input: 'dist/esm/index.js',
   output: [
@@ -24,6 +21,5 @@ export default {
       },
     },
   ],
-  external: ['@capacitor/core'],
-  plugins: [nodeResolve(), terser()],
+  external: ['@capacitor/core']
 };
