@@ -1,6 +1,6 @@
 import { RemoteInfo, Socket, SocketType, createSocket } from 'dgram';
-import { networkInterfaces } from 'os';
 import { EventEmitter } from 'events';
+import { networkInterfaces } from 'os';
 
 import type { IUdpPlugin, Properties } from '../../src/definitions';
 
@@ -9,6 +9,7 @@ type Callback = (err?: Error, message?: { data: Buffer; info: RemoteInfo }) => v
 class UDPSocket {
   private name: string;
   private bufferSize: number;
+  private reuseExisting: boolean;
   private socket: Socket;
   private socketType: SocketType;
   private memberships: Set<string>;
@@ -16,12 +17,14 @@ class UDPSocket {
 
   get properties(): Properties {
     return {
+      reuseExisting: this.reuseExisting,
       bufferSize: this.bufferSize,
       name: this.name,
     };
   }
 
   constructor(cb: Callback, properties?: Partial<Properties>) {
+    this.reuseExisting = properties?.reuseExisting ?? false;
     this.bufferSize = properties?.bufferSize ?? 4096;
     this.name = properties?.name ?? '';
     this.memberships = new Set();
@@ -45,6 +48,10 @@ class UDPSocket {
       this.bufferSize = properties.bufferSize;
       this.socket.setRecvBufferSize(this.bufferSize);
       this.socket.setSendBufferSize(this.bufferSize);
+    }
+
+    if ('reuseExisting' in properties && typeof properties.reuseExisting === 'boolean') {
+      this.reuseExisting = properties.reuseExisting;
     }
   }
 
@@ -111,6 +118,7 @@ class UDPSocket {
 
     this.socketType = type;
     this.socket = createSocket({
+      reuseAddr: this.reuseExisting,
       recvBufferSize: this.bufferSize,
       sendBufferSize: this.bufferSize,
       type: this.socketType,

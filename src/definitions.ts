@@ -1,7 +1,7 @@
 import { PluginListenerHandle } from '@capacitor/core';
 
 export type Success = Record<string, unknown>;
-export type Properties = { name: string; bufferSize: number };
+export type Properties = { name: string; bufferSize: number; reuseExisting?: boolean };
 export type SocketInfo = {
   socketId: number;
   bufferSize: number;
