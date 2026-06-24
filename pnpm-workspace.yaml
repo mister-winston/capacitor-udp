@@ -1,3 +1,8 @@
 packages:
   - 'example'
   - 'example/electron'
+allowBuilds:
+  electron: true
+  esbuild: false
+  lzma-native: true
+  swiftlint: false

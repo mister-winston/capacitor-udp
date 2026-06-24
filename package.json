@@ -8,8 +8,7 @@
     "build": "npm run clean && tsc && rollup -c rollup.config.mjs && npm run build-electron",
     "build-electron": "rimraf ./electron/build && rimraf ./electron/dist && tsc --project ./electron/tsconfig.json && rollup -c electron/rollup.config.mjs && rimraf ./electron/build",
     "clean": "rimraf ./dist",
-    "watch": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "watch": "tsc --watch"
   },
   "author": "Zhongkai Chen",
   "license": "MIT",
