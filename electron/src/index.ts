@@ -1,4 +1,4 @@
-import { RemoteInfo, Socket, SocketType, createSocket } from 'dgram';
+import { createSocket, type RemoteInfo, type Socket, type SocketType } from 'dgram';
 import { EventEmitter } from 'events';
 import { networkInterfaces } from 'os';
 
@@ -155,7 +155,12 @@ const handleEvent: Callback = function (this: { socketId: number; plugin: UdpPlu
   if (error) {
     this.plugin.emit('receiveError', { socketId: this.socketId, message: error.message || error.toString() });
   } else if (message) {
-    this.plugin.emit('receive', { socketId: this.socketId, buffer: message.data.toString('base64') });
+    this.plugin.emit('receive', {
+      socketId: this.socketId,
+      buffer: message.data.toString('base64'),
+      remoteAddress: message.info.address,
+      remotePort: message.info.port,
+    });
   }
 };
 
